@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments :: page_head('Quản lý thể loại - MTShop Admin', 'none')"/>
+
+<body>
+<div class="container-fluid">
+
+    <!-- navigation -->
+    <div th:replace="navigation::menu"></div>
+
+    <!-- user form -->
+    <div>
+        <!-- class="text-center mt-3 mb-3" -->
+        <h2>Quản Lý Thể loại</h2>
+        <a th:href="@{/categories/new}" class="fas fa-folder-plus fa-2x icon-dark mr-2"></a>
+        <a th:href="@{/categories/export/csv}" class="fas fa-file-csv fa-2x mr-2" style="color: #007c01"></a>
+    </div>
+
+    <!-- search -->
+    <div th:replace="fragments :: search_form_and_message('/categories/page/1')"/>
+
+    <!-- table -->
+    <div class="full-details">
+        <table class="table table-bordered table-striped table-hover table-responsive-xl">
+            <thead class="thead-dark">
+            <tr>
+                <th>Id</th>
+                <th>Image</th>
+                <th th:replace="fragments :: column_link('/categories', 'name', 'Tên', 'none')"/>
+                <th class="hideable-column">Alias</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+            </thead>
+
+            <!-- load user list -->
+            <tbody>
+            <tr th:each="category: ${listCategories}">
+                <td>[[${category.id}]]</td>
+                <td>
+                    <img th:src="@{${category.imagePath}}" style="width: 100px" class="img-fluid"/>
+                </td>
+                <td>[[${category.name}]]</td>
+                <td class="hideable-column">[[${category.alias}]]</td>
+                <td>
+                    <div th:replace="fragments :: status(${category.enabled}, '/categories/' + ${category.id})"/>
+                </td>
+                <td>
+                    <div th:replace="fragments :: edit('/categories/edit/' + ${category.id}, 'thể loại')"/>
+                    &nbsp;
+                    <div th:replace="fragments :: delete('/categories/delete/' + ${category.id}, 'thể loại',
+                    ${!category.hasChildren}, ${category.id})"/>
+                </td>
+            </tr>
+            </tbody>
+            <!-- load user list -->
+
+        </table>
+    </div>
+    <!-- table -->
+
+    <div class="less-details">
+        <div th:each="category: ${listCategories}" class="row m-1">
+            <div class="col-4">
+                <img th:src="@{${category.imagePath}}" style="width: 100px" class="img-fluid"/>
+            </div>
+            <div class="col-8">
+                <div>[[${category.name}]]</div>
+                <div class="mt-2">
+                    <div th:replace="fragments :: status(${category.enabled}, '/categories/' + ${category.id})"/>
+                    &nbsp;
+                    <div th:replace="fragments :: edit('/categories/edit/' + ${category.id}, 'thể loại')"/>
+                    &nbsp;
+                    <div th:replace="fragments :: delete('/categories/delete/' + ${category.id}, 'thể loại',
+                    ${!category.hasChildren}, ${category.id})"/>
+                </div>
+            </div>
+            <div>&nbsp;</div>
+        </div>
+    </div>
+
+    <div th:if="${keyword != null}" class="text-center">
+        <span>Kết quả tìm kiếm không hiển thị các danh mục ở dạng phân cấp</span>
+        <div th:replace="fragments :: pagination('/categories', 'thể loại')"></div>
+    </div>
+
+    <th:block th:unless="${keyword != null}">
+        <div th:replace="fragments :: pagination('/categories', 'top-level thể loại')"></div>
+    </th:block>
+
+    <!-- confirm modal -->
+    <div th:replace="modal_fragments :: confirm_modal"></div>
+
+    <!-- footer -->
+    <div th:replace="fragments :: footer"></div>
+
+</div>
+
+<script type="text/javascript">
+    moduleUrl = "[[@{/categories/}]]";
+
+    $(document).ready(function () {
+        $(".link-delete").on("click", function (e) {
+            e.preventDefault();
+            showDeleteConfirmModal($(this), 'category');
+        });
+    });
+</script>
+<script th:src="@{/js/common_list.js}"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head(${pageTitle}, 'none')"/>
+
+<body>
+<div class="container-fluid">
+
+    <!-- navigation -->
+    <div th:replace="navigation::menu"></div>
+
+    <div class="mb-5">
+        <h2>Quản lý nhãn hiệu | [[${pageTitle}]]</h2>
+    </div>
+
+    <form th:action="@{/brands/save}" method="post" style="max-width: 500px; margin: 0 auto" th:object="${brand}"
+          enctype="multipart/form-data" onsubmit="return checkUnique(this);">
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="border border-secondary rounded p-3">
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Tên nhãn hiệu:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" required minlength="2" maxlength="45" th:field="*{name}"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Logo:</label>
+                <div class="col-sm-8">
+                    <input type="hidden" th:field="*{logo}"/>
+                    <input type="file" id="fileImage" accept="image/png, image/jpeg" class="mb-2" name="fileImage"
+                           th:required="brand.id==null"/>
+                    <div class="mt-2">
+                        <img id="thumbnail" alt="Image preview" class="img-fluid" th:src="@{${brand.logoPath}}"/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Chọn 1 hoặc nhiều thể loại:</label>
+                <div class="col-sm-8">
+                    <select th:field="*{categories}" class="form-control" multiple required
+                            style="resize: vertical; height: 200px">
+                        <th:block th:each="cat: ${listCategories}">
+                            <option th:value="${cat.id}">[[${cat.name}]]</option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Thể loại được chọn</label>
+                <div class="col-sm-8">
+                    <div id="chosenCategories"></div>
+                </div>
+            </div>
+            <div class="text-center">
+                <input type="submit" value="Save" class="btn btn-primary m-3"/>
+                <input type="button" value="Cancel" class="btn btn-secondary" id="btnCancel">
+            </div>
+        </div>
+    </form>
+
+    <div th:replace="modal_fragments :: modal_dialog"></div>
+
+    <!-- footer -->
+    <div th:replace="fragments :: footer"></div>
+
+</div>
+
+<script type="text/javascript">
+    moduleUrl = "[[@{/brands}]]";
+
+    $(document).ready(function () {
+        dropdownCategories = $("#categories");
+        divChosenCategories = $("#chosenCategories");
+
+        dropdownCategories.change(function () {
+            divChosenCategories.empty();
+            showChosenCategories();
+        });
+
+        showChosenCategories();
+    });
+
+    function showChosenCategories() {
+        dropdownCategories.children("option:selected").each(function () {
+            selectedCategory = $(this);
+            catId = selectedCategory.val();
+            catName = selectedCategory.text().replace(/-/g, "");
+
+            divChosenCategories.append("<span class='badge badge-secondary m-1'>" + catName + "</span>");
+        });
+    }
+
+    function checkUnique(form) {
+        url = "[[@{/brands/check_unique}]]";
+
+        brandId = $("#id").val();
+        brandName = $("#name").val();
+
+        csrfValue = $("input[name='_csrf']").val();
+
+        params = {id: brandId, name: brandName, _csrf: csrfValue};
+
+        $.post(url, params, function (response) {
+            if (response == "OK") {
+                form.submit();
+            } else if (response == "Duplicate") {
+                showWarningModal("Nhãn hiệu " + brandName + " đã tồn tại !");
+            } else {
+                showErrorModal("Unknown response from server");
+            }
+        }).fail(function () {
+            showErrorModal("Could not connect to the server"); // this line runs when the above url is wrong
+        });
+
+        return false;
+    }
+</script>
+<script th:src="@{/js/common_form.js}"></script>
+</body>
+</html>

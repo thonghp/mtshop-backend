@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments :: page_head('Quản lý nhãn hiệu - MTShop Admin', 'none')"/>
+
+<body>
+<div class="container-fluid">
+
+    <!-- navigation -->
+    <div th:replace="navigation::menu"></div>
+
+    <!-- user form -->
+    <div>
+        <!-- class="text-center mt-3 mb-3" -->
+        <h2>Quản Lý nhãn hiệu</h2>
+        <a th:href="@{/brands/new}" class="fas fa-folder-plus fa-2x icon-dark mr-2"></a>
+        <a th:href="@{/brands/export/csv}" class="fas fa-file-csv fa-2x mr-2" style="color: #007c01"></a>
+    </div>
+
+    <!-- search -->
+    <div th:replace="fragments :: search_form_and_message('/brands/page/1')"/>
+
+    <!-- table -->
+    <div class="full-details">
+        <table class="table table-bordered table-striped table-hover table-responsive-xl">
+            <thead class="thead-dark">
+            <tr>
+                <th class="hideable-column">Id</th>
+                <th>Logo</th>
+                <th th:replace="fragments :: column_link('/brands', 'name', 'Tên', 'none')"/>
+                <th>Thể loại</th>
+                <th></th>
+            </tr>
+            </thead>
+
+            <!-- load user list -->
+            <tbody>
+            <tr th:each="brand: ${listBrands}">
+                <td class="hideable-column">[[${brand.id}]]</td>
+                <td>
+                    <img th:src="@{${brand.logoPath}}" style="width: 100px" class="img-fluid"/>
+                </td>
+                <td>[[${brand.name}]]</td>
+                <td>
+                    <th:block th:each="cat : ${brand.categories}">
+                        <span class="badge badge-secondary" th:text="${cat.name}"></span>
+                    </th:block>
+                </td>
+                <td>
+                    <div th:replace="fragments :: edit('/brands/edit/' + ${brand.id}, 'nhãn hiệu')"/>
+                    &nbsp;
+                    <div th:replace="fragments :: delete('/brands/delete/' + ${brand.id}, 'nhãn hiệu', true, ${brand.id})"/>
+                </td>
+            </tr>
+            </tbody>
+            <!-- load user list -->
+
+        </table>
+    </div>
+    <!-- table -->
+
+    <div class="less-details">
+        <div th:each="brand: ${listBrands}" class="row m-1">
+            <div class="col-6">
+                <img th:src="@{${brand.logoPath}}" style="width: 100px" class="img-fluid"/>
+            </div>
+            <div class="col-6">
+                <div>[[${brand.name}]]</div>
+                <div class="mt-2">
+                    <div th:replace="fragments :: edit('/brands/edit/' + ${brand.id}, 'nhãn hiệu')"/>
+                    &nbsp;
+                    <div th:replace="fragments :: delete('/brands/delete/' + ${brand.id}, 'nhãn hiệu',
+                    true, ${brand.id})"/>
+                </div>
+            </div>
+            <div>&nbsp;</div>
+        </div>
+    </div>
+
+    <div th:replace="fragments :: pagination('/brands', 'nhãn hiệu')"/>
+
+    <!-- confirm modal -->
+    <div th:replace="modal_fragments :: confirm_modal"></div>
+
+    <!-- footer -->
+    <div th:replace="fragments :: footer"></div>
+
+</div>
+
+<script type="text/javascript">
+    moduleUrl = "[[@{/brands/}]]";
+
+    $(document).ready(function () {
+        $(".link-delete").on("click", function (e) {
+            e.preventDefault();
+            showDeleteConfirmModal($(this), 'brand');
+        });
+    });
+</script>
+<script th:src="@{/js/common_list.js}"></script>
+</body>
+</html>

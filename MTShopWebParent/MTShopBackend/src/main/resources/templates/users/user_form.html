@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head(${pageTitle}, 'none')"/>
+
+<body>
+<div class="container-fluid">
+
+    <!-- navigation -->
+    <div th:replace="navigation::menu"></div>
+
+    <!-- user form -->
+    <div class="mb-5">
+        <h2>Quản lý user | [[${pageTitle}]]</h2>
+    </div>
+    <!-- user form -->
+
+    <form th:action="@{/users/save}" method="post" style="max-width: 700px; margin: 0 auto" th:object="${user}"
+          onsubmit="return checkEmailUnique(this);" enctype="multipart/form-data">
+        <input type="hidden" th:field="*{id}"/>
+        <div class="border border-secondary rounded p-3">
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">E-mail</label>
+                <div class="col-sm-8">
+                    <!-- map attribute with entity -->
+                    <input type="email" class="form-control" required minlength="8" maxlength="128"
+                           th:field="*{email}"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">First Name</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" required minlength="2" maxlength="100"
+                           th:field="*{firstName}"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Last Name</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" required minlength="2" maxlength="45"
+                           th:field="*{lastName}"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Password</label>
+                <div class="col-sm-8">
+                    <input th:if="${user.id == null}" type="password" class="form-control" required minlength="8"
+                           maxlength="64" th:field="*{password}"/>
+                    <input th:if="${user.id != null}" type="password" class="form-control" minlength="8" maxlength="64"
+                           th:field="*{password}" placeholder="Để trống nếu bạn không muốn thay đổi mật khẩu"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Roles:</label>
+                <div class="col-sm-8 mt-2">
+                    <th:block th:each="role: ${listRoles}">
+                        <input type="checkbox" th:field="*{roles}" th:text="${role.name}" th:value="${role.id}"
+                               class="mt-2 mr-2"/>
+                        - <small>[[${role.description}]]</small>
+                        <br>
+                    </th:block>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Enabled:</label>
+                <div class="col-sm-8 mt-2">
+                    <input type="checkbox" th:field="*{enabled}"/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Photos:</label>
+                <div class="col-sm-8">
+                    <input type="hidden" th:field="*{photos}"/>
+                    <input type="file" id="fileImage" accept="image/png, image/jpeg" class="mb-2" name="image"/>
+                    <img id="thumbnail" th:src="@{${user.photosImagePath}}" alt="Photos preview" class="img-fluid"/>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <input type="submit" value="Save" class="btn btn-primary m-3"/>
+                <input type="button" value="Cancel" class="btn btn-secondary" id="btnCancel">
+            </div>
+        </div>
+    </form>
+
+    <!-- modal -->
+    <div th:replace="modal_fragments :: modal_dialog"></div>
+
+    <!-- footer -->
+    <div th:replace="fragments :: footer"></div>
+
+</div>
+
+<script type="text/javascript">
+    moduleUrl = "[[@{/users}]]";
+
+    function checkEmailUnique(form) {
+        url = "[[@{/users/check_email}]]";
+        userEmail = $("#email").val(); // email of th:field, val() get the value of an input
+        userId = $("#id").val();
+        csrfValue = $("input[name='_csrf']").val();
+
+        params = {id: userId, email: userEmail, _csrf: csrfValue}; // csrf token of spring security
+
+        $.post(url, params, function (response) { // method post => url, data, callback
+            if (response == "OK") {
+                form.submit();
+            } else if (response == "Duplicated") {
+                showWarningModal("Email " + userEmail + " đã tồn tại !");
+            } else {
+                showErrorModal("Unknown response from server");
+            }
+        }).fail(function () {
+            showErrorModal("Could not connect to the server"); // this line runs when the above url is wrong
+        });
+
+        return false;
+    }
+</script>
+<script th:src="@{/js/common_form.js}"></script>
+</body>
+</html>

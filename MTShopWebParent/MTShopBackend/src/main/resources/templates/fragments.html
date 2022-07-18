@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="page_head(title, remove)" th:remove="${remove}">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0">
+
+    <title>[[${title}]]</title>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+
+    <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+</head>
+
+<body>
+
+<!-- search -->
+<div th:fragment="search_form_and_message(url)">
+    <form th:action="@{${url}}" class="form-inline m-3">
+        <input type="hidden" name="sortField" th:value="${sortField}"/>
+        <input type="hidden" name="sortType" th:value="${sortType}"/>
+
+        Tìm Kiếm: &nbsp;
+        <input type="search" name="keyword" class="form-control" required placeholder="Search"/>
+        &nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i>
+        </button>
+        &nbsp;&nbsp;
+        <button type="button" class="btn btn-secondary" onclick="clearFilter()" title="Xoá">
+            <i class="fas fa-eraser"></i>
+        </button>
+    </form>
+
+    <div th:if="${message != null}" class="alert alert-success text-center">
+        [[${message}]]
+    </div>
+</div>
+
+<!-- sort column -->
+<th th:fragment="column_link(url, fieldName, columnLabel, removeTag)" th:remove="${removeTag}">
+    <a th:class="text-white" th:href="@{${url} + '/page/' + ${currentPage} + '?sortField=' + ${fieldName}
+    + '&sortType=' + ${sortField != fieldName ? sortType : reverseSortType} + '&keyword='
+    + ${keyword != null ? keyword : ''} + ${categoryId != null ? '&categoryId=' + categoryId : ''}}">
+        [[${columnLabel}]]
+    </a>
+    <span th:if="${sortField == fieldName}" th:class="${sortType == 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'}">
+    </span>
+</th>
+
+<!-- enabled -->
+<div th:fragment="status(enabled, url)" th:remove="tag">
+    <a th:if="${enabled == true}" class="fas fa-check-circle fa-2x icon-green"
+       th:href="@{${url}+ '/enabled/false'}" title="Vô hiệu hoá"></a>
+    <a th:if="${enabled == false}" class="fas fa-check-circle fa-2x icon-dark"
+       th:href="@{${url}+ '/enabled/true'}" title="Kích hoạt"></a>
+</div>
+
+<!-- form edit -->
+<div th:fragment="edit(url, entityName)" th:remove="tag">
+    <a th:href="@{${url}}" class="fas fa-edit fa-2x icon-green" title="'Chỉnh sửa ' + ${entityName}"></a>
+</div>
+
+<!-- delete field -->
+<div th:fragment="delete(url, entityName, visible, entityId)" th:remove="tag">
+    <th:block th:if="${visible}">
+        <a th:href="@{${url}}" class="fas fa-trash fa-2x icon-dark link-delete"
+           th:entityId="${entityId}" title="'Xoá' + ${entityName}"></a>
+    </th:block>
+</div>
+
+<a th:fragment="page_link(url, currentPage, label)" class="page-link"
+   th:href="@{${url} + '/page/' + ${currentPage} + '?sortField=' + ${sortField} + '&sortType=' + ${sortType} +
+   ${keyword != null ? '&keyword=' + keyword : ''} + ${categoryId != null ? '&categoryId=' + categoryId : ''}}">
+    [[${label}]]
+</a>
+
+<!-- pagination -->
+<div th:fragment="pagination(url, entityName)" th:remove="tag">
+    <div class="text-center m-1" th:if="${totalItems > 0}">
+        <span>#[[${startCount}]] đến #[[${endCount}]] của [[${totalItems}]] </span>
+    </div>
+
+    <div class="text-center m-1" th:unless="${totalItems > 0}">
+        <span>Không tìm thấy [[${entityName}]]</span>
+    </div>
+
+    <div th:if="${totalPages > 1}">
+        <nav>
+            <ul class="pagination justify-content-center flex-wrap">
+                <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+                    <a th:replace="fragments :: page_link(${url}, 1, 'First')"></a>
+                </li>
+                <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+                    <a th:replace="fragments :: page_link(${url}, ${currentPage - 1}, 'Previous')"></a>
+                </li>
+                <li th:class="${currentPage != i ? 'page-item' : 'page-item active'}"
+                    th:each="i : ${#numbers.sequence(1,totalPages)}">
+                    <a th:replace="fragments :: page_link(${url}, ${i}, ${i})"></a>
+                </li>
+                <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}">
+                    <a th:replace="fragments :: page_link(${url}, ${currentPage + 1}, 'Next')"></a>
+                </li>
+                <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}">
+                    <a th:replace="fragments :: page_link(${url}, ${totalPages}, 'Last')"></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div th:fragment="footer" class="text-center m-3">
+    <p>MTShop Control Panel - Copyright &copy; MT</p>
+</div>
+
+</body>
+</html>

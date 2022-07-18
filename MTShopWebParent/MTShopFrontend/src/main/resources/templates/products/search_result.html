@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head(${pageTitle}, 'none')"/>
+<body>
+<div class="container-fluid">
+
+    <!-- navigation -->
+    <div th:replace="navigation :: header_menu"/>
+    <div th:replace="navigation :: search_nav"/>
+
+    <div th:if="${totalItems > 0}">
+        <h2>Kết quả tìm kiếm cho `[[${keyword}]]`</h2>
+    </div>
+    <div th:unless="${totalItems > 0}">
+        <h2>Không tìm thấy kết quả nào cho `[[${keyword}]]`</h2>
+    </div>
+
+    <div class="row">
+        <th:block th:each="product: ${listResult}">
+            <div th:replace="products/product_fragment :: content"/>
+        </th:block>
+    </div>
+    <div th:replace="fragments :: pagination('/search', 'sản phẩm')"/>
+    <div th:replace="navigation :: footer_menu"></div>
+
+</div>
+</body>
+</html>

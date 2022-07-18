@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head(${pageTitle}, 'none')"/>
+<body>
+<div class="container-fluid">
+
+    <!-- navigation -->
+    <div th:replace="navigation :: header_menu"/>
+    <div th:replace="navigation :: search_nav"/>
+    <div th:replace="breadcrumb :: content"/>
+
+    <div class="row text-center">
+        <th:block th:each="cat : ${category.getChildren()}">
+            <div class="col" th:if="${cat.enabled == true}">
+                <a th:href="@{'/c/' + ${cat.alias}}">
+                    <img th:src="@{${cat.imagePath}}" height="100">
+                    <br>
+                    [[${cat.name}]]
+                </a>
+            </div>
+        </th:block>
+    </div>
+
+    <div class="row">&nbsp;</div>
+
+    <div class="row">
+        <th:block th:each="product: ${listProducts}">
+            <div th:replace="products/product_fragment :: content"/>
+        </th:block>
+    </div>
+
+    <div th:replace="fragments :: pagination('/c/' + ${category.alias}, 'sản phẩm')"/>
+
+    <div th:replace="navigation :: footer_menu"/>
+
+</div>
+</body>
+</html>

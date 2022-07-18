@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <head th:replace="fragments :: page_head(${pageTitle}, 'tag')"/>
+    <link rel="stylesheet" th:href="@{/js/richtext/richtext.min.css}">
+    <script th:src="@{/js/richtext/jquery.richtext.min.js}"></script>
+</head>
+
+<body>
+<div class="container-fluid">
+
+    <!-- navigation -->
+    <div th:replace="navigation::menu"/>
+
+    <div>
+        <h2>Quản lý sản phẩm | [[${pageTitle}]]</h2>
+    </div>
+
+    <form th:action="@{/products/save}" method="post" th:object="${product}" onsubmit="return checkUnique(this);"
+          enctype="multipart/form-data">
+        <input type="hidden" th:field="*{id}"/>
+        <input th:if="${product.category != null}" type="hidden" id="categoryId" th:value="${product.category.id}"/>
+        <div>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#overview" role="tab">Tổng quan</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#description" role="tab">Mô tả</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#images" role="tab">Hình ảnh</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#details" role="tab">Chi tiết</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#shipping" role="tab">Shipping</a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div class="tab-pane active p-3" id="overview" role="tabpanel">
+                    <div th:replace="products/product_overview :: content"/>
+                </div>
+
+                <!-- description -->
+                <div class="tab-pane" id="description" role="tabpanel">
+                    <th:block sec:authorize="hasAuthority('Salesperson')">
+                        <div th:replace="products/product_description_read_only :: content"/>
+                    </th:block>
+                    <th:block sec:authorize="hasAnyAuthority('Admin', 'Editor')">
+                        <div th:replace="products/product_description :: content"/>
+                    </th:block>
+                </div>
+
+                <!-- image -->
+                <div class="tab-pane" id="images" role="tabpanel">
+                    <th:block sec:authorize="hasAuthority('Salesperson')">
+                        <div th:replace="products/product_image_read_only :: content"/>
+                    </th:block>
+                    <th:block sec:authorize="hasAnyAuthority('Admin', 'Editor')">
+                        <div th:replace="products/product_image :: content"/>
+                    </th:block>
+                </div>
+
+                <!-- detail -->
+                <div class="tab-pane p-3" id="details" role="tabpanel">
+                    <th:block sec:authorize="hasAuthority('Salesperson')">
+                        <div th:replace="products/product_detail_read_only :: content"/>
+                    </th:block>
+                    <th:block sec:authorize="hasAnyAuthority('Admin', 'Editor')">
+                        <div th:replace="products/product_detail :: content"/>
+                        <div>
+                            <input type="button" class="btn btn-secondary" value="Thêm chi tiết"
+                                   onclick="addNextDetailSection()">
+                        </div>
+                    </th:block>
+                </div>
+
+                <!-- shipping -->
+                <div class="tab-pane p-3" id="shipping" role="tabpanel">
+                    <th:block sec:authorize="hasAuthority('Salesperson')">
+                        <div th:replace="products/product_shipping_read_only :: content"/>
+                    </th:block>
+                    <th:block sec:authorize="hasAnyAuthority('Admin', 'Editor')">
+                        <div th:replace="products/product_shipping :: content"/>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <input type="submit" value="Save" class="btn btn-primary m-3"/>
+            <input type="button" value="Cancel" class="btn btn-secondary" id="btnCancel">
+        </div>
+    </form>
+
+    <div th:replace="modal_fragments :: modal_dialog"></div>
+
+    <!-- footer -->
+    <div th:replace="fragments :: footer"></div>
+
+</div>
+
+<script type="text/javascript">
+    moduleUrl = "[[@{/products}]]";
+    brandModuleUrl = "[[@{/brands}]]";
+    defaultImageThumbnailSrc = "[[@{/images/image-thumbnail.png}]]";
+    checkUniqueUrl = "[[@{/products/check_unique}]]";
+
+</script>
+<script th:src="@{/js/common_form.js}"></script>
+<script th:src="@{/js/product_form_overview.js}"></script>
+<script th:src="@{/js/product_form_images.js}"></script>
+<script th:src="@{/js/product_form_detail.js}"></script>
+</body>
+</html>

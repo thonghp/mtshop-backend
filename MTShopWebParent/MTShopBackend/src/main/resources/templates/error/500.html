@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments :: page_head('Lỗi 500 - MTShop Admin', 'none')"/>
+
+<body>
+<div class="container-fluid">
+
+    <!-- navigation -->
+    <div th:replace="navigation :: menu"></div>
+
+    <!-- body -->
+    <div class="m-3">
+       <h2>Xin lỗi, máy chủ đã gặp lỗi khi xử lý yêu cầu của bạn</h2>
+    </div>
+
+    <!-- footer -->
+    <div th:replace="fragments :: footer"></div>
+
+</div>
+</body>
+</html>
